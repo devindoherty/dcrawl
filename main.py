@@ -52,4 +52,3 @@ def main():
         render(screen)
 
 main()
->>>>>>> a0bff23ef3ccd5a0abaf6fea1e72524ac05ba157
