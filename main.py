@@ -52,10 +52,13 @@ clock = pygame.time.Clock()
 gs = GameState()
 wall_sprites = Spritesheet("assets/monochrome_wall.png")
 wall_side_close = wall_sprites.image_at((320, 120, 160, 120))
+wall_side_far = wall_sprites.image_at((0, 120, 160, 120))
 wall_facing_close = wall_sprites.image_at((160, 120, 160, 120))
+wall_facing_far = wall_sprites.image_at((320, 0, 160, 120))
 
 floor_sprites = Spritesheet("assets/monochrome_ceiling.png")
 floor_ceiling_close = floor_sprites.image_at((480, 120, 140, 120))
+floor_ceiling_far = floor_sprites.image_at((160, 120, 140, 120))
 
 def draw_map():
     x = 0
@@ -84,11 +87,13 @@ def draw_player_pov():
     bottom_sector = ()
     
     
-    screen.blit(floor_ceiling_close, (160, 100))
 
 
 
     # Facing North
+    # 
+    # [x - 1][y - 2] - [x][y - 2] - [x + 1][y + 2]
+    #                     |
     # [x -1][y - 1] - [x][y - 1] - [x + 1][y + 1]
     #                    |
     # [x - 1][y]   -  [x][y] - [x + 1][y]
@@ -100,7 +105,11 @@ def draw_player_pov():
         for x in range(gs.player.map_x + 1):
             for y in range(gs.player.map_y + 1):
                 if MAP[x][y] == 1:
-                    screen.blit(wall_facing_close, (160, 100))            
+                    screen.blit(floor_ceiling_far, (160, 100))
+                    screen.blit(floor_ceiling_close, (160, 100))
+                    screen.blit(wall_facing_far, (160, 100))
+                    screen.blit(wall_side_far,(160, 100))
+                    screen.blit(wall_side_close, (160, 100))        
 
 
     # Facing East
@@ -129,6 +138,7 @@ def input():
                 gs.player.y += 6
             if event.key == pygame.K_d:
                 gs.player.x += 6
+                gs.player.map_y += 1
             if event.key == pygame.K_e:
                 if gs.player.direction == 3:
                     gs.player.direction = 0
@@ -144,7 +154,7 @@ def update():
     pass
 
 def render():
-    screen.fill("purple")
+    screen.fill("black")
     draw_map()
     draw_player_map()
     draw_player_pov()
