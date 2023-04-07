@@ -5,7 +5,7 @@ MAP = [
     [1, 0, 1, 0, 0, 1, 0, 1],
     [1, 0, 1, 0, 0, 1, 0, 1],
     [1, 0, 1, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 1, 1, 1, 0, 0, 1],
     [1, 0, 1, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1],
@@ -52,16 +52,19 @@ clock = pygame.time.Clock()
 gs = GameState()
 wall_sprites = Spritesheet("assets/monochrome_wall.png")
 wall_side_close = wall_sprites.image_at((320, 120, 160, 120))
-wall_side_far = wall_sprites.image_at((0, 120, 160, 120))
+wall_side_medium = wall_sprites.image_at((0, 120, 160, 120))
+wall_side_far = wall_sprites.image_at((160, 0, 160, 120))
+
 wall_facing_close = wall_sprites.image_at((160, 120, 160, 120))
 wall_facing_far = wall_sprites.image_at((320, 0, 160, 120))
 
 floor_sprites = Spritesheet("assets/monochrome_ceiling.png")
 floor_ceiling_close = floor_sprites.image_at((480, 120, 140, 120))
-floor_ceiling_far = floor_sprites.image_at((160, 120, 140, 120))
+floor_ceiling_medium = floor_sprites.image_at((160, 120, 140, 120))
+floor_ceiling_far = floor_sprites.image_at((320, 0, 160, 120))
+
+
 floor_ceiling_side_close = floor_sprites.image_at((320 , 120, 160, 120))
-
-
 
 def draw_map():
     x = 0
@@ -87,11 +90,11 @@ def draw_player_pov():
     
     # Facing North
     # 
-    # [x - 2][y - 1] - [x - 2][y] - [x - 2][y + 1]
+    # [x - 2][y - 1] - [x - 2][y] - [x - 2][y + 1] = far
     #                     |
-    # [x - 1][y - 1] - [x -1][y] - [x - 1][y + 1]
+    # [x - 1][y - 1] - [x -1][y] - [x - 1][y + 1] = medium
     #                    |
-    # [x][y - 1]   -  [x][y] - [x][y + 1]
+    # [x][y - 1]   -  [x][y] - [x][y + 1] = close
     
     x = gs.player.map_x
     y = gs.player.map_y
@@ -99,8 +102,28 @@ def draw_player_pov():
     if gs.player.direction == 0:
 
 
-        if MAP[x - 1][y] == 0:
+        if MAP[x - 2][y - 1] == 0:
+            pass
+        if MAP[x - 2][y - 1] == 1:
+            screen.blit(wall_side_far, (160, 100))
+
+        if MAP[x - 2][y] == 0:
             screen.blit(floor_ceiling_far, (160, 100))
+        if MAP[x - 2][y] == 1:
+            screen.blit(wall_facing_far, (160, 100))
+        
+        if MAP[x - 1][y] == 0:
+            screen.blit(floor_ceiling_medium, (160, 100))
+        if MAP[x - 1][y] == 1:
+            screen.blit(wall_facing_close, (160, 100))
+        
+        if MAP[x - 1][y - 1] == 0:
+            pass        
+        if MAP[x - 1][y - 1] == 1:
+            if MAP[x - 1][y] == 0:
+                screen.blit(wall_side_medium, (160, 100))
+                screen.blit(floor_ceiling_medium, (160, 100))
+
 
 
         if MAP[x][y - 1] == 1:
@@ -113,10 +136,9 @@ def draw_player_pov():
         if MAP[x][y] == 1:
             pass # Shouldn't be possible
 
+        if MAP[x][y + 1] == 0:
+            screen.blit(floor_ceiling_side_close, (160, 100))
 
-
-                        
-                    
 
     # Facing East
     if gs.player.direction == 1:
@@ -137,6 +159,7 @@ def input():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
                 gs.player.y -= 6
+                gs.player.map_x -= 1
             if event.key == pygame.K_a:
                 gs.player.x -= 6
             if event.key == pygame.K_s:
