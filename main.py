@@ -65,6 +65,7 @@ floor_ceiling_far = floor_sprites.image_at((320, 0, 160, 120))
 
 
 floor_ceiling_side_close = floor_sprites.image_at((320 , 120, 160, 120))
+floor_ceiling_side_medium = floor_sprites.image_at((0, 120, 160, 120))
 
 def draw_map():
     x = 0
@@ -118,7 +119,7 @@ def draw_player_pov():
             screen.blit(wall_facing_close, (160, 100))
         
         if MAP[x - 1][y - 1] == 0:
-            pass        
+            screen.blit(floor_ceiling_side_medium, (160, 100))
         if MAP[x - 1][y - 1] == 1:
             if MAP[x - 1][y] == 0:
                 screen.blit(wall_side_medium, (160, 100))
@@ -135,7 +136,6 @@ def draw_player_pov():
             screen.blit(floor_ceiling_close, (160, 100))
         if MAP[x][y] == 1:
             pass # Shouldn't be possible
-
         if MAP[x][y + 1] == 0:
             screen.blit(floor_ceiling_side_close, (160, 100))
 
@@ -162,11 +162,13 @@ def input():
                 gs.player.map_x -= 1
             if event.key == pygame.K_a:
                 gs.player.x -= 6
+                gs.player.map_y -= 1
             if event.key == pygame.K_s:
                 gs.player.y += 6
                 gs.player.map_x += 1
             if event.key == pygame.K_d:
                 gs.player.x += 6
+                gs.player.map_y += 1
             if event.key == pygame.K_e:
                 if gs.player.direction == 3:
                     gs.player.direction = 0
