@@ -2,8 +2,8 @@ import pygame
 
 MAP = [
     [1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
     [1, 0, 1, 1, 0, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 1, 1, 1, 0, 0, 1],
@@ -59,6 +59,9 @@ wall_facing_far = wall_sprites.image_at((320, 0, 160, 120))
 floor_sprites = Spritesheet("assets/monochrome_ceiling.png")
 floor_ceiling_close = floor_sprites.image_at((480, 120, 140, 120))
 floor_ceiling_far = floor_sprites.image_at((160, 120, 140, 120))
+floor_ceiling_side_close = floor_sprites.image_at((320 , 120, 160, 120))
+
+
 
 def draw_map():
     x = 0
@@ -81,36 +84,39 @@ def draw_player_map():
     pygame.draw.line(screen, "green", (gs.player.x + 2.5, gs.player.y), (gs.player.x + 2.5, gs.player.y - 3))
 
 def draw_player_pov():
-    left_sector = (160, 100)
-    right_sector = (320, 100)
-    top_sector = ()
-    bottom_sector = ()
     
-    
-
-
-
     # Facing North
     # 
-    # [x - 1][y - 2] - [x][y - 2] - [x + 1][y + 2]
+    # [x - 2][y - 1] - [x - 2][y] - [x - 2][y + 1]
     #                     |
-    # [x -1][y - 1] - [x][y - 1] - [x + 1][y + 1]
+    # [x - 1][y - 1] - [x -1][y] - [x - 1][y + 1]
     #                    |
-    # [x - 1][y]   -  [x][y] - [x + 1][y]
-    #
-    #
-    x = gs.player.map_x - 1
-    y = gs.player.map_y - 1
-    if gs.player.direction == 0:
-        for x in range(gs.player.map_x + 1):
-            for y in range(gs.player.map_y + 1):
-                if MAP[x][y] == 1:
-                    screen.blit(floor_ceiling_far, (160, 100))
-                    screen.blit(floor_ceiling_close, (160, 100))
-                    screen.blit(wall_facing_far, (160, 100))
-                    screen.blit(wall_side_far,(160, 100))
-                    screen.blit(wall_side_close, (160, 100))        
+    # [x][y - 1]   -  [x][y] - [x][y + 1]
+    
+    x = gs.player.map_x
+    y = gs.player.map_y
 
+    if gs.player.direction == 0:
+
+
+        if MAP[x - 1][y] == 0:
+            screen.blit(floor_ceiling_far, (160, 100))
+
+
+        if MAP[x][y - 1] == 1:
+            screen.blit(wall_side_close, (160, 100))
+        if MAP[x][y - 1] == 0:
+            screen.blit(floor_ceiling_side_close, (160, 100))
+        
+        if MAP[x][y] == 0:
+            screen.blit(floor_ceiling_close, (160, 100))
+        if MAP[x][y] == 1:
+            pass # Shouldn't be possible
+
+
+
+                        
+                    
 
     # Facing East
     if gs.player.direction == 1:
@@ -131,14 +137,13 @@ def input():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
                 gs.player.y -= 6
-                gs.player.position -= 1
             if event.key == pygame.K_a:
                 gs.player.x -= 6
             if event.key == pygame.K_s:
                 gs.player.y += 6
+                gs.player.map_x += 1
             if event.key == pygame.K_d:
                 gs.player.x += 6
-                gs.player.map_y += 1
             if event.key == pygame.K_e:
                 if gs.player.direction == 3:
                     gs.player.direction = 0
