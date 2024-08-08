@@ -61,7 +61,7 @@ INTRO = [
 
 DEFEAT = ["You have died."]
 
-VICTORY = ["You SLEW all your foes and have escaped! Hazzah!"]
+VICTORY = ["You SLEW all your foes and escaped! Huzzah!"]
 
 #Compass
 NORTH = 0
@@ -130,6 +130,11 @@ class Map():
             for y, tile in enumerate(row):
                 self.map[x][y] = MapTile(x, y, tile)
 
+    def reveal_map(self, playerx, playery):
+        for x in range(playerx - 1, playerx + 2):
+            for y in range(playery - 1, playery + 2):
+                self.map[x][y].explored = True
+        
 class Player:
     def __init__(self, x, y):
         self.x = x
@@ -140,9 +145,11 @@ class Player:
         self.defense = 12
         self.inventory = []
         self.attacking = False
+        self.moved = False
         self.attacking_idx = 0
 
     def player_move(self, key, monsters):
+        self.moved = True
         x = self.x
         y = self.y
 
@@ -298,16 +305,17 @@ def draw_map(gs):
     y = 0
     for row in gs.map.map:
         for column in row:
-            if column.tile == 1:
-                pygame.draw.rect(gs.map_screen, "grey", (x, y, 10, 10))
+            if column.explored:
+                if column.tile == 1:
+                    pygame.draw.rect(gs.map_screen, "grey", (x, y, 10, 10))
+                    # print(f"Red tile drawn at ({x}, {y})")
+                elif column.tile == 0:
+                    pygame.draw.rect(gs.map_screen, "blue", (x, y, 10, 10))
+                    # print(f"Blue tile drawn at ({x}, {y})")
+                elif column.tile == 'D':
+                    pygame.draw.rect(gs.map_screen, "orange", (x, y, 10, 10))
                 x += 11
-                # print(f"Red tile drawn at ({x}, {y})")
-            elif column.tile == 0:
-                pygame.draw.rect(gs.map_screen, "blue", (x, y, 10, 10))
-                x += 11
-                # print(f"Blue tile drawn at ({x}, {y})")
-            elif column.tile == 'D':
-                pygame.draw.rect(gs.map_screen, "orange", (x, y, 10, 10))
+            else:
                 x += 11
 
         x = 0
@@ -324,9 +332,11 @@ def draw_map(gs):
         pygame.draw.polygon(gs.map_screen, "green", [[gs.player.y * 11, gs.player.x * 11 + 5], [gs.player.y * 11 + 10, gs.player.x * 11 + 10], [gs.player.y * 11 + 10, gs.player.x * 11]], 0)
 
     for monster in gs.monsters:
-        pygame.draw.polygon(gs.map_screen, "red", [[monster.y * 11 + 5, monster.x * 11], [monster.y * 11, monster.x * 11 + 10], [monster.y * 11 + 10, monster.x * 11 +10]], 0)
+        if gs.map.map[monster.x][monster.y].explored:
+            pygame.draw.polygon(gs.map_screen, "red", [[monster.y * 11 + 5, monster.x * 11], [monster.y * 11, monster.x * 11 + 10], [monster.y * 11 + 10, monster.x * 11 +10]], 0)
 
     gs.screen.blit(gs.map_screen, (0,0))
+
 
 
 def draw_pov(gs):
@@ -612,6 +622,7 @@ def draw_sword(gs):
             sprites["sword5"],
             sprites["sword5"],
             sprites["sword5"],
+            sprites["sword5"],
             sprites["sword4"],
             # sprites["sword3"],
             sprites["sword2"],
@@ -623,6 +634,7 @@ def draw_sword(gs):
         (0, 86),
         (0, 78),
         (0, 70),
+        (0, 49),
         (0, 49),
         (0, 49),
         (0, 49),
@@ -741,7 +753,7 @@ def input(gs):
                     monster_attack = random.randint(1, 20)
                     if monster_attack >= gs.player.defense and monster.dead == False:
                         monster_damage = random.randint(1, 10)
-                        msg2 = f"{monster.name} attacked you for {monster_damage} damage."
+                        msg2 = f"{monster.name} attacked you for {monster_damage} damage. (Rolled {monster_attack})"
                         gs.log[1] = pygame.font.SysFont(None, 30).render(msg2, True, "red")
                         gs.player.inflict_damage(monster_damage)
                     else:
@@ -764,6 +776,9 @@ def update(gs):
 
     if gs.player.health <= 0:
         gs.run_mode = "lose"
+    if gs.player.moved == True:
+        gs.map.reveal_map(gs.player.x, gs.player.y)
+        gs.player.moved = False
     
     gs.redraw = True
 
@@ -806,6 +821,16 @@ def main():
     gs = GameState(screen, pov_screen, map_screen, log_screen, info_screen, sprites)
     load_sprites(gs)
     spawn_monsters(gs)
+    def foo(she, who, whom):
+        print (who, "and", whom, "like", she)
+
+    whom = "she"
+    who = "he"
+    it = "her"
+    foo("it", who, it)
+    # missing call on method foo goes here
+
+
 
     while gs.running:
         input(gs)
