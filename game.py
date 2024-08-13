@@ -685,10 +685,7 @@ def get_monster_by_position(x, y, monsters):
             return monster
 
 def position_is_empty(x, y, monsters):
-    for monster in monsters:
-        if (x, y) == (monster.x, monster.y):
-            return False
-    return MAP[x][y] == 0
+    return not monster_adjacent(x, y, monsters) and MAP[x][y] == 0
 
 def spawn_monsters(gs):
     goblin = Monster("Hob", 32, 2, gs.sprites["goblin"])
@@ -757,7 +754,7 @@ def input(gs):
                         gs.log[1] = pygame.font.SysFont(None, 30).render(msg2, True, "red")
                         gs.player.inflict_damage(monster_damage)
                     else:
-                        msg2 = f"{monster.name} attacked you and missed. (Rolled {monster_attack}{" but died)" if monster.dead == True else ")"}"
+                        msg2 = f"{monster.name} attacked you and missed. (Rolled {monster_attack}{' but died)' if monster.dead == True else ')'}"
                         gs.log[1] = pygame.font.SysFont(None, 30).render(msg2, True, "cyan")
                     
 def update(gs):
@@ -821,16 +818,6 @@ def main():
     gs = GameState(screen, pov_screen, map_screen, log_screen, info_screen, sprites)
     load_sprites(gs)
     spawn_monsters(gs)
-    def foo(she, who, whom):
-        print (who, "and", whom, "like", she)
-
-    whom = "she"
-    who = "he"
-    it = "her"
-    foo("it", who, it)
-    # missing call on method foo goes here
-
-
 
     while gs.running:
         input(gs)
